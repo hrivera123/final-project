@@ -1,2 +1,4 @@
-Django>=5.2.8
-
+joanna -
+TODO :
+frontend/app.js 
+create backlog and add the styling inside css 
