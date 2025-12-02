@@ -1,14 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keanu's Candy Store</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
 <body>
-    <header>
-        <h1>🍭 Keanu's Candy Store</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="cart.html">Cart</a>
-            <a href="login.html">Login</a>
-        </nav>
-    </header>
 
-    <section id="products"></section>
+<nav class="navbar navbar-expand-lg navbar-light bg-blue shadow-sm p-3">
+  <div class="container">
+    <a class="navbar-brand fw-bold text-white" href="index.html">Keanu Candy Store</a>
 
-    <script src="app.js"></script>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navBar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navBar">
+      <ul class="navbar-nav ms-auto">
+
+        <li class="nav-item"><a class="nav-link text-white" href="shop.html">Shop</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="cart.html">Cart</a></li>
+
+        <!-- ORDER STATUS PAGE (hidden until logged in) -->
+        <li class="nav-item d-none" id="orderStatusNav">
+          <a class="nav-link text-white fw-bold" href="order-status.html">Order Status</a>
+        </li>
+
+        <!-- LOGIN BUTTON (when logged out) -->
+        <li class="nav-item" id="loginNav">
+            <a class="nav-link text-white" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+        </li>
+
+        <!-- WELCOME MESSAGE (when logged in) -->
+        <li class="nav-item d-none" id="userGreeting">
+            <a class="nav-link text-white fw-bold" id="greetText"></a>
+        </li>
+
+        <!-- LOGOUT BUTTON (when logged in) -->
+        <li class="nav-item d-none" id="logoutNav">
+            <a class="nav-link text-warning fw-bold" href="#" onclick="logoutUser()">Logout</a>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero-section text-center py-5">
+    <h1 class="fw-bold candy-title">Welcome to Keanu's Candy Store!</h1>
+    <p class="lead mt-3 candy-subtitle">A magical place where sweetness meets imagination.</p>
+
+    <img src="assets/img/keanu.png" alt="Candy Store" style="width: 60%; max-width: 5000px;" class="img-fluid rounded shadow hero-image mt-4">
+</section>
+
+<!-- HISTORY SECTION -->
+<section class="history-section container py-5">
+    <h2 class="fw-bold text-center mb-4">Our Story</h2>
+
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <p class="candy-text">
+                Keanu’s Candy Store began on Kean University in Union, NJ. In 2025 in the CPS*5301*01 KeanU was born by Hellen Rivera & Joanna Loja.
+                We wanted to bring the joy of candy to everyone on campus. Then we thought, why can't everyone enjoy our candy?
+                So we expanded to the online world, delivering happiness one sweet treat at a time.
+                <br><br>
+                <strong>Our mission: make the world sweeter, one candy at a time. 🍬</strong>
+            </p>
+        </div>
+
+        <div class="col-md-6 text-center">
+            <img src="assets/img/candyshop.jpg" alt="Candy Display" class="img-fluid rounded shadow history-image">
+        </div>
+    </div>
+</section>
+
+<!-- LOGIN MODAL -->
+<div class="modal fade" id="loginModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <button class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+
+      <h4 class="fw-bold text-center">Welcome Back</h4>
+      <p class="text-center">Log in to continue</p>
+
+      <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Email">
+      <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Password">
+
+      <button class="btn btn-pink w-100 mb-2" onclick="loginUser()">Login</button>
+      <button class="btn btn-outline-pink w-100" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal fade" id="registerModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <button class="btn-close ms-auto" data-bs-dismiss="modal"></button>
+
+      <h4 class="fw-bold text-center">Create an Account</h4>
+
+      <input type="text" id="regName" class="form-control mb-2" placeholder="Full Name">
+      <input type="email" id="regEmail" class="form-control mb-2" placeholder="Email">
+      <input type="password" id="regPassword" class="form-control mb-2" placeholder="Password">
+
+      <button class="btn btn-pink w-100 mt-3" onclick="registerUser()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
+</html>

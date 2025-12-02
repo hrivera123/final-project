@@ -1,0 +1,86 @@
+/* -----------------------------
+   GLOBAL STYLES
+------------------------------ */
+body {
+    background: #f2f8ff; /* very light baby blue */
+    font-family: 'Poppins', sans-serif;
+    color: #003a63;
+}
+
+/* -----------------------------
+   NAVBAR
+------------------------------ */
+.bg-blue {
+    background-color: #6aaaf9 !important; /* soft baby blue */
+}
+
+.navbar .nav-link,
+.navbar-brand {
+    color: white !important;
+    font-weight: 500;
+}
+
+.navbar .nav-link:hover {
+    text-decoration: underline;
+}
+
+/* -----------------------------
+   BUTTONS
+------------------------------ */
+.btn-blue {
+    background-color: #4fa3ff;
+    color: white;
+    border: none;
+}
+
+.btn-blue:hover {
+    background-color: #1f8bff;
+    color: white;
+}
+
+/* -----------------------------
+   TABLES
+------------------------------ */
+.table-blue {
+    background-color: #d6e9ff; /* soft pastel blue */
+}
+
+/* -----------------------------
+   CARD / TITLES
+------------------------------ */
+.candy-title {
+    color: #1f8bff;
+}
+
+.candy-subtitle {
+    color: #0b5aa7;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card img {
+    border-radius: 12px 12px 0 0;
+}
+
+/* -----------------------------
+   IMAGES
+------------------------------ */
+.hero-image, .history-image {
+    border-radius: 15px;
+}
+
+/* -----------------------------
+   CART INPUT
+------------------------------ */
+.qty-input {
+    width: 70px;
+}
+
+/* -----------------------------
+   UTILITY
+------------------------------ */
+.shadow-soft {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
