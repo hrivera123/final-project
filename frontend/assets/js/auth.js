@@ -90,13 +90,14 @@ function updateNavbarUI() {
         loginNav.classList.add("d-none");
         userGreeting.classList.remove("d-none");
         logoutNav.classList.remove("d-none");
-        orderStatusNav.classList.remove("d-none");
 
         // Show admin link if user is admin
         if (isAdmin === "true") {
             adminNav.classList.remove("d-none");
+            orderStatusNav.classList.add("d-none"); // Hide Order Status for admins
         } else {
             adminNav.classList.add("d-none");
+            orderStatusNav.classList.remove("d-none"); // Show Order Status for regular users
         }
 
         greetText.innerText = `Welcome, ${user}!`;
