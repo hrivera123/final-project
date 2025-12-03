@@ -1,4 +1,6 @@
 const Order = require("../models/orderModel");
+const Product = require("../models/productModel");
+const User = require("../models/userModel");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -19,11 +21,31 @@ exports.createOrder = async (req, res) => {
     const serverTotal = items.reduce((s, it) => s + (it.price || 0) * (it.qty || 0), 0);
     total = Number(serverTotal.toFixed(2));
 
+    // Check stock availability for all items before creating order
+    // Note: This is optional if products aren't in DB yet (static frontend list)
+    for (const item of items) {
+      const product = await Product.findOne({ productId: item.productId });
+      if (product && product.stock < item.qty) {
+        return res.status(400).json({ msg: `Not enough stock for "${product.name}". Available: ${product.stock}, Requested: ${item.qty}` });
+      }
+    }
+
+    // Initialize order with "Created" status and status history
     const order = await Order.create({
       user: req.userId,
       items,
-      total
+      total,
+      status: "Created",
+      statusHistory: [{ status: "Created", timestamp: new Date() }]
     });
+
+    // Decrement stock for each product in the order (if product exists in DB)
+    for (const item of items) {
+      await Product.updateOne(
+        { productId: item.productId },
+        { $inc: { stock: -item.qty } }
+      );
+    }
 
     res.json({ msg: "Order created", order });
   } catch (err) {
@@ -35,6 +57,42 @@ exports.getOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.userId }).sort({ createdAt: -1 });
     res.json({ orders });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+// Update order status (admin only)
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user || !user.isAdmin) return res.status(403).json({ msg: "Forbidden" });
+
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    if (!["Created", "Shipped", "Delivered"].includes(status)) {
+      return res.status(400).json({ msg: "Invalid status. Must be: Created, Shipped, or Delivered" });
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ msg: "Order not found" });
+
+    // Validate status transition (can move forward but not backward)
+    const statusOrder = ["Created", "Shipped", "Delivered"];
+    const currentIndex = statusOrder.indexOf(order.status);
+    const newIndex = statusOrder.indexOf(status);
+
+    if (newIndex < currentIndex) {
+      return res.status(400).json({ msg: `Cannot move from ${order.status} to ${status}. Transitions must move forward.` });
+    }
+
+    // Update status and add to history
+    order.status = status;
+    order.statusHistory.push({ status, timestamp: new Date() });
+    await order.save();
+
+    res.json({ msg: "Order status updated", order });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }

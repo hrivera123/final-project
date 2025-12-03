@@ -47,6 +47,7 @@ async function loginUser() {
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("userName", data.user.name);
+        localStorage.setItem("isAdmin", data.user.isAdmin || false);
 
         alert("Login successful!");
 
@@ -65,6 +66,7 @@ async function loginUser() {
 function logoutUser() {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
+    localStorage.removeItem("isAdmin");
     updateNavbarUI();
     alert("You have been logged out.");
 }
@@ -78,8 +80,10 @@ function updateNavbarUI() {
     const logoutNav = document.getElementById("logoutNav");
     const greetText = document.getElementById("greetText");
     const orderStatusNav = document.getElementById("orderStatusNav");
+    const adminNav = document.getElementById("adminNav");
 
     const user = localStorage.getItem("userName");
+    const isAdmin = localStorage.getItem("isAdmin") === "true";
 
     if (user) {
         loginNav.classList.add("d-none");
@@ -89,11 +93,21 @@ function updateNavbarUI() {
 
         greetText.innerText = `Welcome, ${user}!`;
 
+        // Show admin link only if user is admin
+        if (adminNav) {
+            if (isAdmin) {
+                adminNav.classList.remove("d-none");
+            } else {
+                adminNav.classList.add("d-none");
+            }
+        }
+
     } else {
         loginNav.classList.remove("d-none");
         userGreeting.classList.add("d-none");
         logoutNav.classList.add("d-none");
         orderStatusNav.classList.add("d-none");
+        if (adminNav) adminNav.classList.add("d-none");
     }
 }
 
