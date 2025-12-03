@@ -20,7 +20,8 @@ async function registerUser() {
             bootstrap.Modal.getInstance(document.getElementById("registerModal")).hide();
         }
     } catch (err) {
-        alert("Error connecting to server");
+        console.error("Auth error:", err);
+        alert("Error connecting to server: " + (err.message || err));
     }
 }
 
@@ -53,7 +54,8 @@ async function loginUser() {
         updateNavbarUI();
 
     } catch (err) {
-        alert("Error connecting to server");
+        console.error("Auth error:", err);
+        alert("Error connecting to server: " + (err.message || err));
     }
 }
 
