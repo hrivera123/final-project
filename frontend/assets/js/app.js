@@ -1,42 +1,43 @@
 // ---------- PRODUCTS ----------
-const products = [
-    { id: 1, name: "Gummy Bears", price: 3.99, img: "candies/gummybears.jpg" },
-    { id: 2, name: "Chocolate Bar", price: 2.49, img: "candies/chocolate.jpeg" },
-    { id: 3, name: "Sour Worms", price: 4.25, img: "candies/sourworm.webp" },
-    { id: 4, name: "Lollipops", price: 1.99, img: "candies/lollipop.jpeg" },
-    { id: 5, name: "Jelly Beans", price: 3.49, image: "candies/jellybeans.jpg"},
-    { id: 6, name: "Caramel Chews", price: 4.29, image: "candies/caramelchew.jpg"},
-    { id: 7, name: "Rainbow Belts", price: 5.49, image: "candies/rainbowbelts.jpg" },
-    { id: 8, name: "Peanut Butter Cups", price: 4.99, image: "candies/pbcups.jpg"},
-    { id: 9, name: "Rock Candy", price: 2.99, image: "candies/rockcandy.jpg"},
-    { id: 10, name: "Marshmallow Twists", price: 3.79, image: "candies/marshmallowtwists.jpg"},
-    { id: 11, name: "Chocolate Pretzels", price: 5.29, image: "candies/chocpretzels.jpg"},
-    { id: 12, name: "Strawberry Hard Candy", price: 2.49, image: "/assets/images/candies/strawberryhard.jpg"},
-    { id: 13, name: "Mint Swirls", price: 1.99, image: "candies/mint.jpg"},
-    { id: 14, name: "Cotton Candy Pop", price: 3.29, image: "candies/cottoncandypop.jpg"},
-    { id: 15, name: "Sour Patch Bites", price: 3.59, image: "candies/sourpatch.jpg"},
-    { id: 16, name: "Bubble Gum Balls", price: 2.99, image: "candies/bubblegumballs.jpg"},
-    { id: 17, name: "Chocolate Fudge Cubes", price: 4.89, image: "candies/fudgecubes.jpg"},
-    { id: 18, name: "Gummy Sharks", price: 3.99, image: "candies/gummysharks.jpg"},
-    { id: 19, name: "Lemon Drops", price: 2.79, image: "candies/lemondrops.jpg"},
-    { id: 20, name: "Caramel Popcorn", price: 4.59, image: "candies/caramelpopcorn.jpg"}
+// Fetch products from API instead of static array
+let products = [];
 
-];
+const API_BASE = "http://localhost:3000/api";
+
+async function fetchProductsFromAPI() {
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    const data = await res.json();
+    products = data.products || [];
+    return products;
+  } catch (err) {
+    console.error("Failed to fetch products from API:", err);
+    alert("Failed to load products. Please refresh the page.");
+    return [];
+  }
+}
 
 // ---------- LOAD SHOP ----------
-function loadShop() {
+async function loadShop() {
     const grid = document.getElementById("productGrid");
     if (!grid) return;
 
+    // Fetch latest products from API
+    await fetchProductsFromAPI();
+
+    grid.innerHTML = ""; // Clear before rendering
     products.forEach(p => {
+        // Use 'image' field from API, fallback to 'img'
+        const imgPath = p.image || p.img || "candies/default.jpg";
         grid.innerHTML += `
           <div class="col-md-3 mb-4">
               <div class="card shadow-sm">
-                  <img src="${p.img}" class="card-img-top" style="height:180px;object-fit:cover;">
+                  <img src="${imgPath}" class="card-img-top" style="height:180px;object-fit:cover;">
                   <div class="card-body text-center">
                       <h5>${p.name}</h5>
                       <p>$${p.price.toFixed(2)}</p>
-                      <button class="btn btn-pink" onclick="addToCart(${p.id})">Add to Cart</button>
+                      <p style="font-size:0.85rem;color:#666;">Stock: ${p.stock}</p>
+                      <button class="btn btn-pink" onclick="addToCart(${p.productId})">Add to Cart</button>
                   </div>
               </div>
           </div>
@@ -51,13 +52,17 @@ function saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-function addToCart(id) {
-    let item = cart.find(i => i.id === id);
+function addToCart(productId) {
+    let item = cart.find(i => i.productId === productId);
 
     if (item) {
         item.qty++;
     } else {
-        const product = products.find(p => p.id === id);
+        const product = products.find(p => p.productId === productId);
+        if (!product) {
+            alert("Product not found");
+            return;
+        }
         cart.push({ ...product, qty: 1 });
     }
 
@@ -114,44 +119,89 @@ function checkout() {
         return;
     }
 
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push({
-        id: Date.now(),
-        date: new Date().toLocaleString(),
-        items: cart
-    });
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Please log in to place an order.");
+        return;
+    }
 
-    localStorage.setItem("orders", JSON.stringify(orders));
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-    cart = [];
-    saveCart();
-    loadCart();
-    alert("Order placed!");
+    (async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: cart, total })
+            });
+
+            const data = await res.json();
+            if (!res.ok) return alert(data.msg || "Could not place order");
+
+            cart = [];
+            saveCart();
+            loadCart();
+
+            // Reload products to reflect updated stock levels
+            await fetchProductsFromAPI();
+
+            alert("Order placed!");
+            window.location.href = "orders.html";
+        } catch (err) {
+            console.error("Checkout error:", err);
+            alert("Error connecting to server");
+        }
+    })();
 }
 
 // ---------- LOAD ORDERS ----------
 function loadOrders() {
     const container = document.getElementById("ordersList");
     if (!container) return;
-
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-    if (orders.length === 0) {
-        container.innerHTML = "<p>No orders yet!</p>";
+    const token = localStorage.getItem("token");
+    if (!token) {
+        container.innerHTML = "<p>Please log in to see your orders.</p>";
         return;
     }
 
-    orders.forEach(order => {
-        let list = order.items.map(i => `${i.qty}× ${i.name}`).join("<br>");
+    (async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/orders", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
 
-        container.innerHTML += `
-            <div class="border p-3 mb-3 bg-white rounded">
-                <h5>Order #${order.id}</h5>
-                <p><strong>Date:</strong> ${order.date}</p>
-                <p>${list}</p>
-            </div>
-        `;
-    });
+            const data = await res.json();
+            if (!res.ok) {
+                container.innerHTML = `<p>${data.msg || "Could not fetch orders."}</p>`;
+                return;
+            }
+
+            const orders = data.orders || [];
+            if (orders.length === 0) {
+                container.innerHTML = "<p>No orders yet!</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            orders.forEach(order => {
+                let list = order.items.map(i => `${i.qty}× ${i.name}`).join("<br>");
+
+                container.innerHTML += `
+                    <div class="border p-3 mb-3 bg-white rounded">
+                        <h5>Order #${order._id}</h5>
+                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+                        <p>${list}</p>
+                        <p><strong>Status:</strong> ${order.status}</p>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            container.innerHTML = "<p>Error connecting to server</p>";
+        }
+    })();
 }
 
 // ---------- AUTO LOAD DEPENDING ON PAGE ----------

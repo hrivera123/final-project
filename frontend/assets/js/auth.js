@@ -7,7 +7,7 @@ async function registerUser() {
     const password = document.getElementById("regPassword").value;
 
     try {
-        const res = await fetch("http://localhost:5001/api/auth/register", {
+        const res = await fetch("http://localhost:3000/api/auth/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name, email, password })
@@ -32,7 +32,7 @@ async function loginUser() {
     const password = document.getElementById("loginPassword").value;
 
     try {
-        const res = await fetch("http://localhost:5001/api/auth/login", {
+        const res = await fetch("http://localhost:3000/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
@@ -46,6 +46,10 @@ async function loginUser() {
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("userName", data.user.name);
+        // Store isAdmin flag if user is admin (optional, backend will verify on API calls)
+        if (data.user.isAdmin) {
+            localStorage.setItem("isAdmin", "true");
+        }
 
         alert("Login successful!");
 
@@ -63,6 +67,7 @@ async function loginUser() {
 function logoutUser() {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
+    localStorage.removeItem("isAdmin");
     updateNavbarUI();
     alert("You have been logged out.");
 }
@@ -76,14 +81,23 @@ function updateNavbarUI() {
     const logoutNav = document.getElementById("logoutNav");
     const greetText = document.getElementById("greetText");
     const orderStatusNav = document.getElementById("orderStatusNav");
+    const adminNav = document.getElementById("adminNav");
 
     const user = localStorage.getItem("userName");
+    const isAdmin = localStorage.getItem("isAdmin");
 
     if (user) {
         loginNav.classList.add("d-none");
         userGreeting.classList.remove("d-none");
         logoutNav.classList.remove("d-none");
         orderStatusNav.classList.remove("d-none");
+
+        // Show admin link if user is admin
+        if (isAdmin === "true") {
+            adminNav.classList.remove("d-none");
+        } else {
+            adminNav.classList.add("d-none");
+        }
 
         greetText.innerText = `Welcome, ${user}!`;
 
@@ -92,6 +106,7 @@ function updateNavbarUI() {
         userGreeting.classList.add("d-none");
         logoutNav.classList.add("d-none");
         orderStatusNav.classList.add("d-none");
+        adminNav.classList.add("d-none");
     }
 }
 
