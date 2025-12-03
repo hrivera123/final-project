@@ -1,3 +1,13 @@
+# Ignore environment files
+.env
+backend/.env
+
+# Node modules
+node_modules
+
+# Logs
+/logs
+*.log
 # Python
 __pycache__/
 *.py[cod]
