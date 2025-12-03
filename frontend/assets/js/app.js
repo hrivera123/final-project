@@ -114,44 +114,85 @@ function checkout() {
         return;
     }
 
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push({
-        id: Date.now(),
-        date: new Date().toLocaleString(),
-        items: cart
-    });
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Please log in to place an order.");
+        return;
+    }
 
-    localStorage.setItem("orders", JSON.stringify(orders));
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
 
-    cart = [];
-    saveCart();
-    loadCart();
-    alert("Order placed!");
+    (async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ items: cart, total })
+            });
+
+            const data = await res.json();
+            if (!res.ok) return alert(data.msg || "Could not place order");
+
+            cart = [];
+            saveCart();
+            loadCart();
+
+            alert("Order placed!");
+            window.location.href = "orders.html";
+        } catch (err) {
+            alert("Error connecting to server");
+        }
+    })();
 }
 
 // ---------- LOAD ORDERS ----------
 function loadOrders() {
     const container = document.getElementById("ordersList");
     if (!container) return;
-
-    const orders = JSON.parse(localStorage.getItem("orders")) || [];
-
-    if (orders.length === 0) {
-        container.innerHTML = "<p>No orders yet!</p>";
+    const token = localStorage.getItem("token");
+    if (!token) {
+        container.innerHTML = "<p>Please log in to see your orders.</p>";
         return;
     }
 
-    orders.forEach(order => {
-        let list = order.items.map(i => `${i.qty}× ${i.name}`).join("<br>");
+    (async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/orders", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
 
-        container.innerHTML += `
-            <div class="border p-3 mb-3 bg-white rounded">
-                <h5>Order #${order.id}</h5>
-                <p><strong>Date:</strong> ${order.date}</p>
-                <p>${list}</p>
-            </div>
-        `;
-    });
+            const data = await res.json();
+            if (!res.ok) {
+                container.innerHTML = `<p>${data.msg || "Could not fetch orders."}</p>`;
+                return;
+            }
+
+            const orders = data.orders || [];
+            if (orders.length === 0) {
+                container.innerHTML = "<p>No orders yet!</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            orders.forEach(order => {
+                let list = order.items.map(i => `${i.qty}× ${i.name}`).join("<br>");
+
+                container.innerHTML += `
+                    <div class="border p-3 mb-3 bg-white rounded">
+                        <h5>Order #${order._id}</h5>
+                        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+                        <p>${list}</p>
+                        <p><strong>Status:</strong> ${order.status}</p>
+                    </div>
+                `;
+            });
+        } catch (err) {
+            container.innerHTML = "<p>Error connecting to server</p>";
+        }
+    })();
 }
 
 // ---------- AUTO LOAD DEPENDING ON PAGE ----------
