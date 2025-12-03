@@ -1,7 +1,9 @@
 // ==========================
 // REGISTER
 // ==========================
-async function registerUser() {
+async function registerUser(event) {
+    if (event) event.preventDefault();
+    
     const name = document.getElementById("regName").value;
     const email = document.getElementById("regEmail").value;
     const password = document.getElementById("regPassword").value;
@@ -27,7 +29,9 @@ async function registerUser() {
 // ==========================
 // LOGIN
 // ==========================
-async function loginUser() {
+async function loginUser(event) {
+    if (event) event.preventDefault();
+    
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
@@ -64,7 +68,9 @@ async function loginUser() {
 // ==========================
 // LOGOUT
 // ==========================
-function logoutUser() {
+function logoutUser(event) {
+    if (event) event.preventDefault();
+    
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     localStorage.removeItem("isAdmin");
