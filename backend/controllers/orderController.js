@@ -1,4 +1,5 @@
 const Order = require("../models/orderModel");
+const Product = require("../models/productModel");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -15,6 +16,17 @@ exports.createOrder = async (req, res) => {
       qty: Number(i.qty) || 0
     }));
 
+    // Check stock availability for all items before creating order
+    for (const item of items) {
+      const product = await Product.findOne({ productId: item.productId });
+      if (!product) {
+        return res.status(400).json({ msg: `Product ${item.productId} not found` });
+      }
+      if (product.stock < item.qty) {
+        return res.status(400).json({ msg: `Not enough stock for "${product.name}". Available: ${product.stock}, Requested: ${item.qty}` });
+      }
+    }
+
     // Recompute total server-side to avoid price tampering
     const serverTotal = items.reduce((s, it) => s + (it.price || 0) * (it.qty || 0), 0);
     total = Number(serverTotal.toFixed(2));
@@ -24,6 +36,14 @@ exports.createOrder = async (req, res) => {
       items,
       total
     });
+
+    // Decrement stock for each product in the order
+    for (const item of items) {
+      await Product.updateOne(
+        { productId: item.productId },
+        { $inc: { stock: -item.qty } }
+      );
+    }
 
     res.json({ msg: "Order created", order });
   } catch (err) {

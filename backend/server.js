@@ -13,6 +13,9 @@ app.use("/api/auth", authRoutes);
 // ORDERS ROUTES
 const ordersRoutes = require("./routes/orders");
 app.use("/api/orders", ordersRoutes);
+// PRODUCTS / INVENTORY ROUTES
+const productsRoutes = require("./routes/products");
+app.use("/api/products", productsRoutes);
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)

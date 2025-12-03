@@ -1,42 +1,43 @@
 // ---------- PRODUCTS ----------
-const products = [
-    { id: 1, name: "Gummy Bears", price: 3.99, img: "candies/gummybears.jpg" },
-    { id: 2, name: "Chocolate Bar", price: 2.49, img: "candies/chocolate.jpeg" },
-    { id: 3, name: "Sour Worms", price: 4.25, img: "candies/sourworm.webp" },
-    { id: 4, name: "Lollipops", price: 1.99, img: "candies/lollipop.jpeg" },
-    { id: 5, name: "Jelly Beans", price: 3.49, image: "candies/jellybeans.jpg"},
-    { id: 6, name: "Caramel Chews", price: 4.29, image: "candies/caramelchew.jpg"},
-    { id: 7, name: "Rainbow Belts", price: 5.49, image: "candies/rainbowbelts.jpg" },
-    { id: 8, name: "Peanut Butter Cups", price: 4.99, image: "candies/pbcups.jpg"},
-    { id: 9, name: "Rock Candy", price: 2.99, image: "candies/rockcandy.jpg"},
-    { id: 10, name: "Marshmallow Twists", price: 3.79, image: "candies/marshmallowtwists.jpg"},
-    { id: 11, name: "Chocolate Pretzels", price: 5.29, image: "candies/chocpretzels.jpg"},
-    { id: 12, name: "Strawberry Hard Candy", price: 2.49, image: "/assets/images/candies/strawberryhard.jpg"},
-    { id: 13, name: "Mint Swirls", price: 1.99, image: "candies/mint.jpg"},
-    { id: 14, name: "Cotton Candy Pop", price: 3.29, image: "candies/cottoncandypop.jpg"},
-    { id: 15, name: "Sour Patch Bites", price: 3.59, image: "candies/sourpatch.jpg"},
-    { id: 16, name: "Bubble Gum Balls", price: 2.99, image: "candies/bubblegumballs.jpg"},
-    { id: 17, name: "Chocolate Fudge Cubes", price: 4.89, image: "candies/fudgecubes.jpg"},
-    { id: 18, name: "Gummy Sharks", price: 3.99, image: "candies/gummysharks.jpg"},
-    { id: 19, name: "Lemon Drops", price: 2.79, image: "candies/lemondrops.jpg"},
-    { id: 20, name: "Caramel Popcorn", price: 4.59, image: "candies/caramelpopcorn.jpg"}
+// Fetch products from API instead of static array
+let products = [];
 
-];
+const API_BASE = "http://localhost:3000/api";
+
+async function fetchProductsFromAPI() {
+  try {
+    const res = await fetch(`${API_BASE}/products`);
+    const data = await res.json();
+    products = data.products || [];
+    return products;
+  } catch (err) {
+    console.error("Failed to fetch products from API:", err);
+    alert("Failed to load products. Please refresh the page.");
+    return [];
+  }
+}
 
 // ---------- LOAD SHOP ----------
-function loadShop() {
+async function loadShop() {
     const grid = document.getElementById("productGrid");
     if (!grid) return;
 
+    // Fetch latest products from API
+    await fetchProductsFromAPI();
+
+    grid.innerHTML = ""; // Clear before rendering
     products.forEach(p => {
+        // Use 'image' field from API, fallback to 'img'
+        const imgPath = p.image || p.img || "candies/default.jpg";
         grid.innerHTML += `
           <div class="col-md-3 mb-4">
               <div class="card shadow-sm">
-                  <img src="${p.img}" class="card-img-top" style="height:180px;object-fit:cover;">
+                  <img src="${imgPath}" class="card-img-top" style="height:180px;object-fit:cover;">
                   <div class="card-body text-center">
                       <h5>${p.name}</h5>
                       <p>$${p.price.toFixed(2)}</p>
-                      <button class="btn btn-pink" onclick="addToCart(${p.id})">Add to Cart</button>
+                      <p style="font-size:0.85rem;color:#666;">Stock: ${p.stock}</p>
+                      <button class="btn btn-pink" onclick="addToCart(${p.productId})">Add to Cart</button>
                   </div>
               </div>
           </div>
@@ -51,13 +52,17 @@ function saveCart() {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-function addToCart(id) {
-    let item = cart.find(i => i.id === id);
+function addToCart(productId) {
+    let item = cart.find(i => i.productId === productId);
 
     if (item) {
         item.qty++;
     } else {
-        const product = products.find(p => p.id === id);
+        const product = products.find(p => p.productId === productId);
+        if (!product) {
+            alert("Product not found");
+            return;
+        }
         cart.push({ ...product, qty: 1 });
     }
 
@@ -140,9 +145,13 @@ function checkout() {
             saveCart();
             loadCart();
 
+            // Reload products to reflect updated stock levels
+            await fetchProductsFromAPI();
+
             alert("Order placed!");
             window.location.href = "orders.html";
         } catch (err) {
+            console.error("Checkout error:", err);
             alert("Error connecting to server");
         }
     })();
