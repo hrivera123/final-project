@@ -1,5 +1,5 @@
 window.onload = function () {
-    let loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    let loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
     loginModal.show();
 };
 
@@ -32,3 +32,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+// No module exports: attach any bootstrap-driven behavior if needed (login modal shown on load)

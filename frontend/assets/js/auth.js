@@ -96,3 +96,8 @@ function updateNavbarUI() {
 }
 
 window.onload = updateNavbarUI;
+
+// Expose auth functions for use from HTML
+window.registerUser = registerUser;
+window.loginUser = loginUser;
+window.logoutUser = logoutUser;

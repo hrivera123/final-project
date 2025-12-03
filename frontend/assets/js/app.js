@@ -199,3 +199,9 @@ function loadOrders() {
 loadShop();
 loadCart();
 loadOrders();
+
+// Expose functions used from inline HTML or other scripts so ESLint knows they are used
+window.addToCart = addToCart;
+window.updateQty = updateQty;
+window.removeItem = removeItem;
+window.checkout = checkout;
