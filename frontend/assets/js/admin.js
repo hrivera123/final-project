@@ -3,12 +3,31 @@ const API_BASE = "http://localhost:3000/api";
 
 async function fetchProducts() {
   try {
-    const res = await fetch(`${API_BASE}/products`);
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const res = await fetch(`${API_BASE}/products`, {
+      method: 'GET',
+      headers: headers
+    });
+    
+    if (!res.ok) {
+      console.error("Failed to fetch products:", res.status);
+      showAlert("Failed to load products (Server error)", "danger");
+      return [];
+    }
+    
     const data = await res.json();
+    console.log("Fetched products:", data);
     return data.products || [];
   } catch (err) {
     console.error("fetchProducts error", err);
-    showAlert("Failed to load products", "danger");
+    showAlert("Failed to load products: " + err.message, "danger");
     return [];
   }
 }
