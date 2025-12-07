@@ -4,3 +4,6 @@
 3. Login as admin: `KeanU@gmail.com`
 4. Click "Admin" link
 5. Manage inventory!
+
+
+cd /Users/joannaloja/Documents/Advanced\ Engineering/final-project/backend && npm run dev

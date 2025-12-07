@@ -1,5 +1,5 @@
 window.onload = function () {
-    let loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    let loginModal = new bootstrap.Modal(document.getElementById("loginModal"));
     loginModal.show();
 };
 
