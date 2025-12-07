@@ -1,11 +1,11 @@
-require('dotenv').config({ path: __dirname + '/../.env' });
-const mongoose = require('mongoose');
-const Product = require('../models/productModel');
+require("dotenv").config({ path: __dirname + "/../.env" });
+const mongoose = require("mongoose");
+const Product = require("../models/productModel");
 
 async function seedProducts() {
   try {
     await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    console.log('Connected to MongoDB');
+    console.log("Connected to MongoDB");
 
     // Check if products already exist
     const count = await Product.countDocuments();
@@ -33,7 +33,7 @@ async function seedProducts() {
     console.log(`Successfully seeded ${seedData.length} products`);
     process.exitCode = 0;
   } catch (err) {
-    console.error('Error seeding products:', err.message || err);
+    console.error("Error seeding products:", err.message || err);
     process.exitCode = 1;
   } finally {
     try { await mongoose.disconnect(); } catch (e) {}

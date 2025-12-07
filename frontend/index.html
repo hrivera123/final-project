@@ -36,7 +36,7 @@
 
         <!-- LOGIN BUTTON (when logged out) -->
         <li class="nav-item" id="loginNav">
-            <a class="nav-link text-white" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+            <a class="nav-link text-white" href="#" onclick="event.preventDefault(); new bootstrap.Modal(document.getElementById('loginModal')).show(); return false;">Login</a>
         </li>
 
         <!-- WELCOME MESSAGE (when logged in) -->
@@ -46,7 +46,7 @@
 
         <!-- LOGOUT BUTTON (when logged in) -->
         <li class="nav-item d-none" id="logoutNav">
-            <a class="nav-link text-warning fw-bold" href="#" onclick="logoutUser()">Logout</a>
+            <a class="nav-link text-warning fw-bold" href="javascript:void(0);" onclick="logoutUser(event); return false;">Logout</a>
         </li>
 
       </ul>
@@ -95,8 +95,8 @@
       <input type="email" id="loginEmail" class="form-control mb-2" placeholder="Email">
       <input type="password" id="loginPassword" class="form-control mb-3" placeholder="Password">
 
-      <button class="btn btn-pink w-100 mb-2" onclick="loginUser()">Login</button>
-      <button class="btn btn-outline-pink w-100" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+      <button type="button" class="btn btn-pink w-100 mb-2" onclick="loginUser(event); return false;">Login</button>
+      <button type="button" class="btn btn-outline-pink w-100" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
     </div>
   </div>
 </div>
@@ -113,7 +113,7 @@
       <input type="email" id="regEmail" class="form-control mb-2" placeholder="Email">
       <input type="password" id="regPassword" class="form-control mb-2" placeholder="Password">
 
-      <button class="btn btn-pink w-100 mt-3" onclick="registerUser()">Create Account</button>
+      <button type="button" class="btn btn-pink w-100 mt-3" onclick="registerUser(event); return false;">Create Account</button>
     </div>
   </div>
 </div>

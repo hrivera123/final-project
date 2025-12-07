@@ -1,7 +1,9 @@
 // ==========================
 // REGISTER
 // ==========================
-async function registerUser() {
+async function registerUser(event) {
+    if (event) event.preventDefault();
+    
     const name = document.getElementById("regName").value;
     const email = document.getElementById("regEmail").value;
     const password = document.getElementById("regPassword").value;
@@ -27,7 +29,9 @@ async function registerUser() {
 // ==========================
 // LOGIN
 // ==========================
-async function loginUser() {
+async function loginUser(event) {
+    if (event) event.preventDefault();
+    
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
@@ -64,7 +68,9 @@ async function loginUser() {
 // ==========================
 // LOGOUT
 // ==========================
-function logoutUser() {
+function logoutUser(event) {
+    if (event) event.preventDefault();
+    
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     localStorage.removeItem("isAdmin");
@@ -90,13 +96,14 @@ function updateNavbarUI() {
         loginNav.classList.add("d-none");
         userGreeting.classList.remove("d-none");
         logoutNav.classList.remove("d-none");
-        orderStatusNav.classList.remove("d-none");
 
         // Show admin link if user is admin
         if (isAdmin === "true") {
             adminNav.classList.remove("d-none");
+            orderStatusNav.classList.add("d-none"); // Hide Order Status for admins
         } else {
             adminNav.classList.add("d-none");
+            orderStatusNav.classList.remove("d-none"); // Show Order Status for regular users
         }
 
         greetText.innerText = `Welcome, ${user}!`;
